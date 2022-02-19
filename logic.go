@@ -112,16 +112,16 @@ func avoidWall(state GameState, possibleMoves map[string]bool) map[string]bool {
 	myHead := state.You.Head
 	boardWidth := state.Board.Width
 	boardHeight := state.Board.Height
-	if myHead.X+1 < boardWidth {
-		possibleMoves["left"] = false
-	}
-	if myHead.X-1 > 0 {
+	if myHead.X+1 > boardWidth {
 		possibleMoves["right"] = false
 	}
-	if myHead.Y+1 < boardHeight {
+	if myHead.X-1 < 0 {
+		possibleMoves["left"] = false
+	}
+	if myHead.Y+1 > boardHeight {
 		possibleMoves["up"] = false
 	}
-	if myHead.Y-1 > 0 {
+	if myHead.Y-1 < 0 {
 		possibleMoves["down"] = false
 	}
 

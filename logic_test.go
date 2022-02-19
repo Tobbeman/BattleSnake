@@ -76,15 +76,6 @@ func TestWallAvoidance(t *testing.T) {
 				"right": false,
 			},
 		},
-		{
-			cord: Coord{X: 3, Y: 0},
-			pMoves: map[string]bool{
-				"up":    true,
-				"down":  false,
-				"left":  true,
-				"right": true,
-			},
-		},
 	}
 
 	possibleMoves := map[string]bool{
@@ -106,11 +97,15 @@ func TestWallAvoidance(t *testing.T) {
 			You: me,
 		}
 
-		moves := avoidWall(state, possibleMoves)
+		tmp := map[string]bool{}
+		for k, v := range possibleMoves {
+			tmp[k] = v
+		}
+		moves := avoidWall(state, tmp)
 
-		for key, value := range possibleMoves {
+		for key, value := range tmp {
 			if value != moves[key] {
-				t.Errorf("snake does not avoid wall: %+v", test)
+				t.Errorf("snake does not avoid wall: %+v, %+v", test, moves)
 			}
 		}
 	}
