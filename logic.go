@@ -53,16 +53,16 @@ func move(state GameState) BattlesnakeMoveResponse {
 	log.Printf("%+v", state.You.Body)
 
 	// Step 0: Don't let your Battlesnake move back in on it's own neck
-	possibleMoves = avoidNeck(state, possibleMoves)
+	// possibleMoves = avoidNeck(state, possibleMoves)
 
 	// Step 1 - Don't hit walls.
 	possibleMoves = avoidWall(state, possibleMoves)
 
 	// Step 2 - Don't hit yourself.
-	possibleMoves = avoidSelf(state, possibleMoves)
+	// possibleMoves = avoidSelf(state, possibleMoves)
 
-	// TODO: Step 3 - Don't collide with others.
-	// Use information in GameState to prevent your Battlesnake from colliding with others.
+	// Step 3 - Don't collide with others.
+	possibleMoves = avoidSnakes(state, possibleMoves)
 
 	// TODO: Step 4 - Find food.
 	// Use information in GameState to seek out and find food.
@@ -156,6 +156,35 @@ func avoidSelf(state GameState, possibleMoves map[string]bool) map[string]bool {
 		}
 		if myHead.Y-1 == link.Y && myHead.X == link.X {
 			moves["down"] = false
+		}
+	}
+
+	return moves
+}
+
+func avoidSnakes(state GameState, possibleMoves map[string]bool) map[string]bool {
+	moves := copyMoves(possibleMoves)
+
+	myHead := state.You.Head
+
+	for _, snake := range state.Board.Snakes {
+		for _, link := range snake.Body {
+			if myHead.Y == link.Y {
+				if myHead.X+1 == link.X {
+					moves["right"] = false
+				}
+				if myHead.X-1 == link.X {
+					moves["left"] = false
+				}
+			}
+			if myHead.X == link.X {
+				if myHead.Y+1 == link.Y {
+					moves["up"] = false
+				}
+				if myHead.Y-1 == link.Y {
+					moves["down"] = false
+				}
+			}
 		}
 	}
 
