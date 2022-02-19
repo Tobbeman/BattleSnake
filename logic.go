@@ -21,7 +21,7 @@ func info() BattlesnakeInfoResponse {
 		APIVersion: "1",
 		Author:     "Tobbeman",
 		Color:      "#4C89C8",
-		Head:       "default", // TODO: Personalize
+		Head:       "shades",
 		Tail:       "default", // TODO: Personalize
 	}
 }
