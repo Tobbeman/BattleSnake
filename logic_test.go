@@ -12,6 +12,8 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+const loopNumberForMove = 100
+
 func TestNeckAvoidance(t *testing.T) {
 	// Arrange
 	me := Battlesnake{
@@ -28,8 +30,7 @@ func TestNeckAvoidance(t *testing.T) {
 
 	possibleMoves := newPossibleMoves()
 
-	// Act 1,000x (this isn't a great way to test, but it's okay for starting out)
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < loopNumberForMove; i++ {
 		moves := avoidNeck(state, possibleMoves)
 		// Assert never move left
 		if moves["left"] == true {
@@ -233,7 +234,7 @@ func TestMovement(t *testing.T) {
 			You: me,
 		}
 
-		for i := 0; i < 1000; i++ {
+		for i := 0; i < loopNumberForMove; i++ {
 			move := move(state).Move
 			fail := true
 			for key, value := range test.pMoves {
@@ -242,7 +243,7 @@ func TestMovement(t *testing.T) {
 				}
 			}
 			if fail {
-				t.Fatalf("snake suck ass")
+				t.Fatalf("got the wrong move: '%s' %v", move, test.pMoves)
 			}
 		}
 	}
