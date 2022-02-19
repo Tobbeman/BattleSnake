@@ -105,3 +105,46 @@ func TestWallAvoidance(t *testing.T) {
 		}
 	}
 }
+
+func TestSelfAvoidance(t *testing.T) {
+	tests := []struct {
+		cord   Coord
+		body   []Coord
+		pMoves map[string]bool
+	}{
+		{
+			cord: Coord{X: 2, Y: 2},
+			body: []Coord{{X: 2, Y: 2}, {X: 2, Y: 3}, {X: 1, Y: 3}, {X: 1, Y: 2}, {X: 1, Y: 1}},
+			pMoves: map[string]bool{
+				"up":    false,
+				"down":  true,
+				"left":  false,
+				"right": true,
+			},
+		},
+	}
+
+	possibleMoves := newPossibleMoves()
+
+	for _, test := range tests {
+		me := Battlesnake{
+			Head: test.cord,
+			Body: test.body,
+		}
+		state := GameState{
+			Board: Board{
+				Width:  5,
+				Height: 5,
+			},
+			You: me,
+		}
+
+		moves := avoidSelf(state, possibleMoves)
+
+		for key, value := range test.pMoves {
+			if value != moves[key] {
+				t.Errorf("snake does not avoid self: %+v, %+v", test, moves)
+			}
+		}
+	}
+}

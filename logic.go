@@ -59,9 +59,8 @@ func move(state GameState) BattlesnakeMoveResponse {
 	// Step 1 - Don't hit walls.
 	possibleMoves = avoidWall(state, possibleMoves)
 
-	// TODO: Step 2 - Don't hit yourself.
-	// Use information in GameState to prevent your Battlesnake from colliding with itself.
-	// mybody := state.You.Body
+	// Step 2 - Don't hit yourself.
+	possibleMoves = avoidSelf(state, possibleMoves)
 
 	// TODO: Step 3 - Don't collide with others.
 	// Use information in GameState to prevent your Battlesnake from colliding with others.
@@ -135,6 +134,30 @@ func avoidWall(state GameState, possibleMoves map[string]bool) map[string]bool {
 	}
 	if myHead.Y-1 < 0 {
 		moves["down"] = false
+	}
+
+	return moves
+}
+
+func avoidSelf(state GameState, possibleMoves map[string]bool) map[string]bool {
+	moves := copyMoves(possibleMoves)
+
+	myHead := state.You.Head
+	myBody := state.You.Body
+
+	for _, link := range myBody {
+		if myHead.X+1 == link.X && myHead.Y == link.Y {
+			moves["right"] = false
+		}
+		if myHead.X-1 == link.X && myHead.Y == link.Y {
+			moves["left"] = false
+		}
+		if myHead.Y+1 == link.Y && myHead.X == link.X {
+			moves["up"] = false
+		}
+		if myHead.Y-1 == link.Y && myHead.X == link.X {
+			moves["down"] = false
+		}
 	}
 
 	return moves
