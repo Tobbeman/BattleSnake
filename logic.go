@@ -90,7 +90,7 @@ func move(state GameState) BattlesnakeMoveResponse {
 }
 
 func avoidNeck(state GameState, possibleMoves map[string]bool) map[string]bool {
-	myHead := state.You.Body[0]
+	myHead := state.You.Head
 	myNeck := state.You.Body[1]
 	if myNeck.X < myHead.X {
 		possibleMoves["left"] = false
@@ -106,16 +106,19 @@ func avoidNeck(state GameState, possibleMoves map[string]bool) map[string]bool {
 }
 
 func avoidWall(state GameState, possibleMoves map[string]bool) map[string]bool {
-	myHead := state.You.Body[0]
+	myHead := state.You.Head
 	boardWidth := state.Board.Width
 	boardHeight := state.Board.Height
 	if myHead.X+1 < boardWidth {
 		possibleMoves["left"] = false
-	} else if myHead.X-1 > 0 {
+	}
+	if myHead.X-1 > 0 {
 		possibleMoves["right"] = false
-	} else if myHead.Y+1 < boardHeight {
+	}
+	if myHead.Y+1 < boardHeight {
 		possibleMoves["up"] = false
-	} else if myHead.Y-1 > 0 {
+	}
+	if myHead.Y-1 > 0 {
 		possibleMoves["down"] = false
 	}
 
