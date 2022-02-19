@@ -4,6 +4,15 @@ import (
 	"testing"
 )
 
+func newPossibleMoves() map[string]bool {
+	return map[string]bool{
+		"up":    true,
+		"down":  true,
+		"left":  true,
+		"right": true,
+	}
+}
+
 func TestNeckAvoidance(t *testing.T) {
 	// Arrange
 	me := Battlesnake{
@@ -18,12 +27,7 @@ func TestNeckAvoidance(t *testing.T) {
 		You: me,
 	}
 
-	possibleMoves := map[string]bool{
-		"up":    true,
-		"down":  true,
-		"left":  true,
-		"right": true,
-	}
+	possibleMoves := newPossibleMoves()
 
 	// Act 1,000x (this isn't a great way to test, but it's okay for starting out)
 	for i := 0; i < 1000; i++ {
@@ -78,12 +82,7 @@ func TestWallAvoidance(t *testing.T) {
 		},
 	}
 
-	possibleMoves := map[string]bool{
-		"up":    true,
-		"down":  true,
-		"left":  true,
-		"right": true,
-	}
+	possibleMoves := newPossibleMoves()
 
 	for _, test := range tests {
 		me := Battlesnake{
@@ -97,13 +96,9 @@ func TestWallAvoidance(t *testing.T) {
 			You: me,
 		}
 
-		tmp := map[string]bool{}
-		for k, v := range possibleMoves {
-			tmp[k] = v
-		}
-		moves := avoidWall(state, tmp)
+		moves := avoidWall(state, possibleMoves)
 
-		for key, value := range tmp {
+		for key, value := range test.pMoves {
 			if value != moves[key] {
 				t.Errorf("snake does not avoid wall: %+v, %+v", test, moves)
 			}

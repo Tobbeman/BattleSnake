@@ -92,38 +92,50 @@ func move(state GameState) BattlesnakeMoveResponse {
 	}
 }
 
+func copyMoves(input map[string]bool) map[string]bool {
+	ret := map[string]bool{}
+	for k, v := range input {
+		ret[k] = v
+	}
+	return ret
+}
+
 func avoidNeck(state GameState, possibleMoves map[string]bool) map[string]bool {
+	moves := copyMoves(possibleMoves)
+
 	myHead := state.You.Head
 	myNeck := state.You.Body[1]
 	if myNeck.X < myHead.X {
-		possibleMoves["left"] = false
+		moves["left"] = false
 	} else if myNeck.X > myHead.X {
-		possibleMoves["right"] = false
+		moves["right"] = false
 	} else if myNeck.Y < myHead.Y {
-		possibleMoves["down"] = false
+		moves["down"] = false
 	} else if myNeck.Y > myHead.Y {
-		possibleMoves["up"] = false
+		moves["up"] = false
 	}
 
-	return possibleMoves
+	return moves
 }
 
 func avoidWall(state GameState, possibleMoves map[string]bool) map[string]bool {
+	moves := copyMoves(possibleMoves)
+
 	myHead := state.You.Head
 	boardWidth := state.Board.Width
 	boardHeight := state.Board.Height
-	if myHead.X+1 > boardWidth {
-		possibleMoves["right"] = false
+	if myHead.X+1 > boardWidth-1 {
+		moves["right"] = false
 	}
 	if myHead.X-1 < 0 {
-		possibleMoves["left"] = false
+		moves["left"] = false
 	}
-	if myHead.Y+1 > boardHeight {
-		possibleMoves["up"] = false
+	if myHead.Y+1 > boardHeight-1 {
+		moves["up"] = false
 	}
 	if myHead.Y-1 < 0 {
-		possibleMoves["down"] = false
+		moves["down"] = false
 	}
 
-	return possibleMoves
+	return moves
 }
