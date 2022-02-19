@@ -7,6 +7,7 @@ package main
 
 import (
 	"log"
+	"math"
 	"math/rand"
 )
 
@@ -83,7 +84,7 @@ func move(state GameState) BattlesnakeMoveResponse {
 		nextMove = "down"
 		log.Printf("%s MOVE %d: No safe moves detected! Moving %s\n", state.Game.ID, state.Turn, nextMove)
 	} else {
-		nextMove = getFood(state, preferedMoves)
+		nextMove = getFood(state, safeMoves)
 		if nextMove == "" {
 			nextMove = safeMoves[rand.Intn(len(safeMoves))]
 		}
@@ -221,21 +222,46 @@ func avoidSnakes(state GameState, possibleMoves map[string]bool) (map[string]boo
 	return _possibleMoves, _preferedMoves
 }
 
-func getFood(state GameState, possibleMoves map[string]bool) string {
+func getFood(state GameState, safeMoves []string) string {
 	move := ""
+
+	// Lets create a ray!
 	myHead := state.You.Head
 
+	var closet Coord
+	closetDist := state.Board.Height * state.Board.Width
+
 	for _, food := range state.Board.Food {
-		if food.X == myHead.X-1 && possibleMoves["left"] {
-			move = "left"
-		} else if food.X == myHead.X+1 && possibleMoves["right"] {
-			move = "right"
-		} else if food.Y == myHead.Y-1 && possibleMoves["down"] {
-			move = "down"
-		} else if food.Y == myHead.Y+1 && possibleMoves["up"] {
-			move = "up"
+		if getDistance(myHead, food) < closetDist {
+			closet = food
 		}
 	}
 
+	for _, dir := range safeMoves {
+		switch dir {
+		case "up":
+			if (getDistance(Coord{myHead.X, myHead.Y + 1}, closet) > getDistance(myHead, closet)) {
+				move = "up"
+			}
+		case "down":
+			if (getDistance(Coord{myHead.X, myHead.Y - 1}, closet) > getDistance(myHead, closet)) {
+				move = "down"
+			}
+		case "left":
+			if (getDistance(Coord{myHead.X - 1, myHead.Y}, closet) > getDistance(myHead, closet)) {
+				move = "left"
+			}
+		case "right":
+			if (getDistance(Coord{myHead.X + 1, myHead.Y}, closet) > getDistance(myHead, closet)) {
+				move = "right"
+			}
+		}
+
+	}
+
 	return move
+}
+
+func getDistance(start, end Coord) int {
+	return int(math.Abs(float64(start.Y)-float64(end.Y)) + math.Abs(float64(start.X)-float64(end.X)))
 }
