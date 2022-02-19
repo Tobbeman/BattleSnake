@@ -50,6 +50,9 @@ func move(state GameState) BattlesnakeMoveResponse {
 		"right": true,
 	}
 
+	log.Printf("+%v", state.You.Head)
+	log.Printf("+%v", state.You.Body)
+
 	// Step 0: Don't let your Battlesnake move back in on it's own neck
 	possibleMoves = avoidNeck(state, possibleMoves)
 
