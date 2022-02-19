@@ -83,7 +83,10 @@ func move(state GameState) BattlesnakeMoveResponse {
 		nextMove = "down"
 		log.Printf("%s MOVE %d: No safe moves detected! Moving %s\n", state.Game.ID, state.Turn, nextMove)
 	} else {
-		nextMove = safeMoves[rand.Intn(len(safeMoves))]
+		nextMove = getFood(state, preferedMoves)
+		if nextMove == "" {
+			nextMove = safeMoves[rand.Intn(len(safeMoves))]
+		}
 		log.Printf("%s MOVE %d: %s\n", state.Game.ID, state.Turn, nextMove)
 	}
 	return BattlesnakeMoveResponse{
@@ -216,4 +219,23 @@ func avoidSnakes(state GameState, possibleMoves map[string]bool) (map[string]boo
 	}
 
 	return _possibleMoves, _preferedMoves
+}
+
+func getFood(state GameState, possibleMoves map[string]bool) string {
+	move := ""
+	myHead := state.You.Head
+
+	for _, food := range state.Board.Food {
+		if food.X == myHead.X-1 && possibleMoves["left"] {
+			move = "left"
+		} else if food.X == myHead.X+1 && possibleMoves["right"] {
+			move = "right"
+		} else if food.Y == myHead.Y-1 && possibleMoves["down"] {
+			move = "down"
+		} else if food.Y == myHead.Y+1 && possibleMoves["up"] {
+			move = "up"
+		}
+	}
+
+	return move
 }
