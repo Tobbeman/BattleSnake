@@ -43,14 +43,8 @@ func end(state GameState) {
 // where to move -- valid moves are "up", "down", "left", or "right".
 // We've provided some code and comments to get you started.
 func move(state GameState) BattlesnakeMoveResponse {
-	possibleMoves := map[string]bool{
-		"up":    true,
-		"down":  true,
-		"left":  true,
-		"right": true,
-	}
-
-	log.Printf("%+v", state.You.Body)
+	possibleMoves := newPossibleMoves()
+	preferedMoves := newPossibleMoves()
 
 	// Step 0: Don't let your Battlesnake move back in on it's own neck
 	// possibleMoves = avoidNeck(state, possibleMoves)
@@ -61,8 +55,8 @@ func move(state GameState) BattlesnakeMoveResponse {
 	// Step 2 - Don't hit yourself.
 	// possibleMoves = avoidSelf(state, possibleMoves)
 
-	// Step 3 - Don't collide with others.
-	possibleMoves = avoidSnakes(state, possibleMoves)
+	// Step 3 - Don't collide with others. Or yourself!
+	possibleMoves, preferedMoves = avoidSnakes(state, possibleMoves)
 
 	// TODO: Step 4 - Find food.
 	// Use information in GameState to seek out and find food.
@@ -70,9 +64,16 @@ func move(state GameState) BattlesnakeMoveResponse {
 	// Finally, choose a move from the available safe moves.
 	// TODO: Step 5 - Select a move to make based on strategy, rather than random.
 	var nextMove string
-
 	safeMoves := []string{}
-	for move, isSafe := range possibleMoves {
+	moveMap := possibleMoves // Reference!
+
+	for _, isSafe := range preferedMoves {
+		if isSafe {
+			moveMap = preferedMoves
+		}
+	}
+
+	for move, isSafe := range moveMap {
 		if isSafe {
 			safeMoves = append(safeMoves, move)
 		}
@@ -87,6 +88,15 @@ func move(state GameState) BattlesnakeMoveResponse {
 	}
 	return BattlesnakeMoveResponse{
 		Move: nextMove,
+	}
+}
+
+func newPossibleMoves() map[string]bool {
+	return map[string]bool{
+		"up":    true,
+		"down":  true,
+		"left":  true,
+		"right": true,
 	}
 }
 
@@ -162,8 +172,9 @@ func avoidSelf(state GameState, possibleMoves map[string]bool) map[string]bool {
 	return moves
 }
 
-func avoidSnakes(state GameState, possibleMoves map[string]bool) map[string]bool {
-	moves := copyMoves(possibleMoves)
+func avoidSnakes(state GameState, possibleMoves map[string]bool) (map[string]bool, map[string]bool) {
+	_possibleMoves := copyMoves(possibleMoves)
+	_preferedMoves := copyMoves(possibleMoves)
 
 	myHead := state.You.Head
 
@@ -171,22 +182,38 @@ func avoidSnakes(state GameState, possibleMoves map[string]bool) map[string]bool
 		for _, link := range snake.Body {
 			if myHead.Y == link.Y {
 				if myHead.X+1 == link.X {
-					moves["right"] = false
+					_possibleMoves["right"] = false
+					_preferedMoves["right"] = false
 				}
 				if myHead.X-1 == link.X {
-					moves["left"] = false
+					_possibleMoves["left"] = false
+					_preferedMoves["left"] = false
+				}
+				if myHead.X+2 == link.X {
+					_preferedMoves["right"] = false
+				}
+				if myHead.X-2 == link.X {
+					_preferedMoves["left"] = false
 				}
 			}
 			if myHead.X == link.X {
 				if myHead.Y+1 == link.Y {
-					moves["up"] = false
+					_possibleMoves["up"] = false
+					_preferedMoves["up"] = false
 				}
 				if myHead.Y-1 == link.Y {
-					moves["down"] = false
+					_possibleMoves["down"] = false
+					_preferedMoves["down"] = false
+				}
+				if myHead.Y+2 == link.Y {
+					_preferedMoves["up"] = false
+				}
+				if myHead.Y-2 == link.Y {
+					_preferedMoves["down"] = false
 				}
 			}
 		}
 	}
 
-	return moves
+	return _possibleMoves, _preferedMoves
 }

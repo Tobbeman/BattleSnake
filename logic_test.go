@@ -1,16 +1,15 @@
 package main
 
 import (
+	"io/ioutil"
+	"log"
+	"os"
 	"testing"
 )
 
-func newPossibleMoves() map[string]bool {
-	return map[string]bool{
-		"up":    true,
-		"down":  true,
-		"left":  true,
-		"right": true,
-	}
+func TestMain(m *testing.M) {
+	log.SetOutput(ioutil.Discard)
+	os.Exit(m.Run())
 }
 
 func TestNeckAvoidance(t *testing.T) {
@@ -186,7 +185,7 @@ func TestSnakeAvoidance(t *testing.T) {
 			You: me,
 		}
 
-		moves := avoidSnakes(state, possibleMoves)
+		moves, _ := avoidSnakes(state, possibleMoves)
 		fail := false
 		for key, value := range test.pMoves {
 			if value != moves[key] {
@@ -195,6 +194,56 @@ func TestSnakeAvoidance(t *testing.T) {
 		}
 		if fail {
 			t.Errorf("snake does not avoid self: %+v, %+v", test, moves)
+		}
+	}
+}
+
+func TestMovement(t *testing.T) {
+	tests := []struct {
+		me     int
+		snakes []Battlesnake
+		pMoves map[string]bool
+	}{
+		{
+			me: 1,
+			snakes: []Battlesnake{
+				{Body: []Coord{{X: 1, Y: 2}, {X: 2, Y: 2}, {X: 3, Y: 2}}},
+				{Body: []Coord{{X: 1, Y: 1}, {X: 2, Y: 1}}}, // Me
+				{Body: []Coord{{X: 1, Y: 0}, {X: 2, Y: 0}, {X: 3, Y: 0}}},
+			},
+			pMoves: map[string]bool{
+				"up":    false,
+				"down":  false,
+				"left":  false,
+				"right": true,
+			},
+		},
+	}
+
+	for _, test := range tests {
+		me := test.snakes[test.me]
+		me.Head = me.Body[1]
+
+		state := GameState{
+			Board: Board{
+				Width:  5,
+				Height: 5,
+				Snakes: test.snakes,
+			},
+			You: me,
+		}
+
+		for i := 0; i < 1000; i++ {
+			move := move(state).Move
+			fail := true
+			for key, value := range test.pMoves {
+				if key == move && value {
+					fail = false
+				}
+			}
+			if fail {
+				t.Fatalf("snake suck ass")
+			}
 		}
 	}
 }
